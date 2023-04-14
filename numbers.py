@@ -1,5 +1,5 @@
 '''
-Testing Python
+Testing WxPython GUI  development to encapsulate future projects 
 '''
 #!/usr/bin/env python
 import wx
