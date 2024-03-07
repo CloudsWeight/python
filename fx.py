@@ -58,11 +58,12 @@ const['accountId']=[ # Account Ids
 					'1',
 					'2',
 					]
-# Example of a built URL:
-#                   "https://api-fxtrade.oanda.com/v3/instruments/EUR_USD/candles?count=6&price=M&granularity=S5"										
-const['instruments']={  # CURRENCY PAIRS
-					'eurusd':'EUR_USD', 
-					'usdjpy':'USD_JPY',
+const['instruments']={
+					# CURRENCY PAIRS
+					'URL':'/v3/instruments/', # const['instruments']['URL']+const['instruments']['usdchf']
+					'eurusd':'EUR_USD', # ['eurusd']
+					'usdjpy':'USD_JPY', # ['usdjpy']
+					'usdchf':'USD_CHF', # const['instruments']['usdchf']
 					}
 # OANDA GRANULARITY VALUES BELOW
 # S5	5 second candlesticks, minute alignment
@@ -86,30 +87,43 @@ const['instruments']={  # CURRENCY PAIRS
 # D	1 day candlesticks, day alignment
 # W	1 week candlesticks, aligned to start of week
 # M	1 month candlesticks, aligned to first day of the month
-const['candles']={
+const['candles']={ # example build) const['candles']['URL']+const['candles']['count']+const['candles']['granularity']['15m']
+					'URL': '/candles?',
 					'granularity':{
-						'5s':'S5',
-						'5m':'M5',
-						'15m':'M15',
-						'1h':'H1', 
-						'4h':'H4',
-						'd':'D',
-						'w':'W',
-						'M':'M',
+						'5s':'&granularity=S5',
+						'5m':'&granularity=M5',
+						'15m':'&granularity=M15',
+						'1h':'&granularity=H1', 
+						'4h':'&granularity=H4',
+						'd':'&granularity=D',
+						'w':'&granularity=W',
+						'M':'&granularity=M',
 						 },
-					'count': 1000, # [default=500, maximum=5000] dont use with FROM and TO
+					'count': 'count=1000', # [default=500, maximum=5000] dont use with FROM and TO
 
 					} 
-const['default_granularity']=const["candles"]["granularity"]["15m"]
-const['default_count']=const['candles']['count']
 # The RFC 3339 Date Time format for FROM and TO parameters 
-# second header section
-#headers = {'Authorization': 'Bearer %s' % const['token']}
-# build query based off the defined constants 
-const['built_URL']=const['URL']+const['accounts']
+const['Accept-Datetime-Format']='' # blank for now i dunno 
 #
-def build_url(url=const['built_URL'], headers=const['headers']):
-	print(f"{url}\n{const['headers']}")
+# DEFAULT CURRENCY: EURUSD
+const['default_instrument']=const['URL']+const['instruments']['URL']+const['instruments']['usdchf']
+# DEFAULT GRANULARITY: 15m
+const['default_granularity']=const['candles']['granularity']['5s']
+# DEFAULT COUNT: 1000
+const['default_count']=const['candles']['URL']+const['candles']['count']
+#
+#      "https://api-fxtrade.oanda.com/v3/instruments/EUR_USD/candles?count=6&price=M&granularity=S5"
+#
+const['accounts_chunk']=const['URL']+const['accounts']
+chnk1 = const['instruments_chunk']=const['URL']+const['instruments']['URL']+const['instruments']['usdchf']
+chnk2 = const['candles_chunk']=const['candles']['URL']+const['candles']['count']
+chnk3 = const['gran_chunk']=const['candles']['granularity']['5s']
+#
+#   THE CHUNKEN ONE #
+const['chunken_URL']=chnk1+chnk2+chnk3      # 
+# build url uses the value set for 'chosen_url'  #
+def build_url(url=const['chunken_URL'], headers=const['headers']):
+	print(f"{baseURL}\n{const['headers']}")
 	r = requests.get(url=url, headers=headers)
 	print(r.status_code)
 	print(r.content)
@@ -119,7 +133,7 @@ def check_const():
 	for keys in const:
 		print(f"{keys}: {const[keys]} \n") 
 #
-def query_url(url=const['built_URL']):
+def query_url(url=const['chunken_URL']):
 	if url == '':
 		print("need data feed me grrrURL")
 		return
