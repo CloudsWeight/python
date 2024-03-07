@@ -61,6 +61,7 @@ const['accountId']=[ # Account Ids
 const['instruments']={
 					# CURRENCY PAIRS
 					'URL':'/v3/instruments/', # const['instruments']['URL']+const['instruments']['usdchf']
+					'current':'USD_JPY',
 					'eurusd':'EUR_USD', # ['eurusd']
 					'usdjpy':'USD_JPY', # ['usdjpy']
 					'usdchf':'USD_CHF', # const['instruments']['usdchf']
@@ -90,6 +91,7 @@ const['instruments']={
 const['candles']={ # example build) const['candles']['URL']+const['candles']['count']+const['candles']['granularity']['15m']
 					'URL': '/candles?',
 					'granularity':{
+						'current':'&granularity=H1',
 						'5s':'&granularity=S5',
 						'5m':'&granularity=M5',
 						'15m':'&granularity=M15',
@@ -106,7 +108,7 @@ const['candles']={ # example build) const['candles']['URL']+const['candles']['co
 const['Accept-Datetime-Format']='' # blank for now i dunno 
 #
 # DEFAULT CURRENCY: EURUSD
-const['default_instrument']=const['URL']+const['instruments']['URL']+const['instruments']['usdchf']
+const['default_instrument']=const['URL']+const['instruments']['URL']+const['instruments']['current']
 # DEFAULT GRANULARITY: 15m
 const['default_granularity']=const['candles']['granularity']['5s']
 # DEFAULT COUNT: 1000
@@ -115,15 +117,15 @@ const['default_count']=const['candles']['URL']+const['candles']['count']
 #      "https://api-fxtrade.oanda.com/v3/instruments/EUR_USD/candles?count=6&price=M&granularity=S5"
 #
 const['accounts_chunk']=const['URL']+const['accounts']
-chnk1 = const['instruments_chunk']=const['URL']+const['instruments']['URL']+const['instruments']['usdchf']
+chnk1 = const['instruments_chunk']=const['URL']+const['instruments']['URL']+const['instruments']['current']
 chnk2 = const['candles_chunk']=const['candles']['URL']+const['candles']['count']
-chnk3 = const['gran_chunk']=const['candles']['granularity']['5s']
+chnk3 = const['gran_chunk']=const['candles']['granularity']['current']
 #
 #   THE CHUNKEN ONE #
 const['chunken_URL']=chnk1+chnk2+chnk3      # 
 # build url uses the value set for 'chosen_url'  #
 def build_url(url=const['chunken_URL'], headers=const['headers']):
-	print(f"{baseURL}\n{const['headers']}")
+	print(f"{baseURL}\n")
 	r = requests.get(url=url, headers=headers)
 	print(r.status_code)
 	print(r.content)
@@ -134,10 +136,69 @@ def check_const():
 		print(f"{keys}: {const[keys]} \n") 
 #
 def query_url(url=const['chunken_URL']):
-	if url == '':
-		print("need data feed me grrrURL")
-		return
+	print(url)
 
+def see_pairs(pair=const['instruments']):
+	for keys in pair:
+		print(f"{keys}: {pair[keys]} \n") 
+
+	const['instruments']['current']=pair
+
+def menu():
+	toggle = 0
+	if toggle == 0:
+		print('Welcome to Streamoney, a dip in the rich pool of FX markets.\n')
+		print('This is an interactive program.  Enter the option # to continue. ')
+		print(f"1. See {const['instruments']['current']} Live Rate")
+		print('2. Change Pair')
+		print('3. See Pairs')
+		print('4. Quit')
+		print(' Enter "cls" to clear the screen (Windows only)')
+		ans = input("Enter a # from the list to continue: ")
+	
+
+		match ans.lower():
+			case "1":
+				build_url()
+				menu()
+
+			case "2":
+				see_pairs()
+				menu()
+			case "3":
+				see_pairs()
+				menu()
+			case "q":
+				return
+			case "cls":
+				print(os.name)
+				os.system('cls')
+				menu()
+def choose_pair():
+	toggle = 0
+	if toggle == 0:
+		see_pairs()
+		ans = input("Enter a # from the list to continue: ")
+	
+
+		match ans.lower():
+			case "1":
+				build_url()
+				menu()
+
+			case "2":
+				see_pairs()
+				menu()
+			case "3":
+				see_pairs()
+				menu()
+			case "3":
+				return
+			case "cls":
+				print(os.name)
+				os.system('cls')
+				menu()
+	
 
 if __name__ == "__main__":
-	build_url()
+	menu()
