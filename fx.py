@@ -30,8 +30,7 @@ import json
 from accts import accts
 from secret import SECRET 
 import argparse
-import matplotlib.pyplot as plt
-import mplfinance as mpf
+
 
 class OandaApp():
 	def __init__(self, token=None, account=None):
@@ -67,11 +66,11 @@ class OandaApp():
 					}
 		self.count = {
 						'URL':'count=',
-						'current':'36' # [default=500, maximum=5000] dont use with "FROM and TO"
+						'current':'3' # [default=500, maximum=5000] dont use with "FROM and TO"
 						}
 		self.candles = {'URL':'/candles?',
 						'granularity':{
-						'current':'&granularity=H1',
+						'current':'&granularity=H4',
 						'5s':'&granularity=S5',
 						'5m':'&granularity=M5',
 						'15m':'&granularity=M15',
@@ -112,7 +111,7 @@ class OandaApp():
 			header = self.HEADER
 		if url is None:
 			url = self.current_url
-		print(f"\nURL: {self.current_url}")
+		#print(f"\nURL: {self.current_url}")
 		r = requests.get(url=url, headers=header)
 		#print(r.status_code)
 		#print(r.content)
@@ -163,5 +162,7 @@ class Candlesticks():
 ################## Enter the dragon
 if __name__ == '__main__':
 	app = OandaApp()
-	raw_data = app.query_rate()
-	app.query_account()
+	rate_data = app.query_rate()
+	print(json.dumps(app.deserialize(rate_data), indent=2))
+	
+	
