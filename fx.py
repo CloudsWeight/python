@@ -25,72 +25,42 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
-import requests 
+import requests
 import json 
-from secret import SECRET as SECRET
-#                                                                                                                              
-#                                                                                   :                                          
-#           .                             ,;                                       t#,     L.                     ,;           
-#          ;W          j.               f#i                                       ;##W.    EW:        ,ft       f#i            
-#         f#E GEEEEEEELEW,            .E#t             ..           ..       :   :#L:WE    E##;       t#E     .E#t  f.     ;WE.
-#       .E#f  ,;;L#K;;.E##j          i#W,             ;W,          ,W,     .Et  .KG  ,#D   E###t      t#E    i#W,   E#,   i#G  
-#      iWW;      t#E   E###D.       L#D.             j##,         t##,    ,W#t  EE    ;#f  E#fE#f     t#E   L#D.    E#t  f#f   
-#     L##Lffi    t#E   E#jG#W;    :K#Wfff;          G###,        L###,   j###t f#.     t#i E#t D#G    t#E :K#Wfff;  E#t G#i    
-#    tLLG##L     t#E   E#t t##f   i##WLLLLt       :E####,      .E#j##,  G#fE#t :#G     GK  E#t  f#E.  t#E i##WLLLLt E#jEW,     
-#      ,W#i      t#E   E#t  :K#E:  .E#L          ;W#DG##,     ;WW; ##,:K#i E#t  ;#L   LW.  E#t   t#K: t#E  .E#L     E##E.      
-#     j#E.       t#E   E#KDDDD###i   f#E:       j###DW##,    j#E.  ##f#W,  E#t   t#f f#:   E#t    ;#W,t#E    f#E:   E#G        
-#   .D#j         t#E   E#f,t#Wi,,,    ,WW;     G##i,,G##,  .D#L    ###K:   E#t    f#D#;    E#t     :K#D#E     ,WW;  E#t        
-#  ,WK,          t#E   E#t  ;#W:       .D#;  :K#K:   L##, :K#t     ##D.    E#t     G#t     E#t      .E##E      .D#; E#t        
-#  EG.            fE   DWi   ,KK:        tt ;##D.    L##, ...      #G      ..       t      ..         G#E        tt EE.        
-#  ,               :                        ,,,      .,,           j                                   fE           t          
-#                                                                                                       ,                      
-# curl -H "Authorization: Bearer 12345678900987654321-abc34135acde13f13530" https://api-fxtrade.oanda.com/v3/accounts
-#
-# dictionary of constants to call to build queries
-const = {}
-const['token']='' # API Toke 
-const['headers']={ # Headers and Auth
+from accts import accts
+from secret import SECRET 
+#import argparse
+
+class OandaApp():
+	def __init__(self, token='', account=''):
+		self.BASE_URL ='https://api-fxtrade.oanda.com'
+		self.account = {
+					'URL':f'{self.BASE_URL}/v3/accounts', # Accounts Endpoint
+					'acctId': accts,
+					'current':f'{accts[0]}'
+						}
+		self.token = SECRET
+		self.HEADER = { # Headers and Auth
 					'Authorization': 'Bearer {}'.format(SECRET),
 				} 
-const['URL']='https://api-fxtrade.oanda.com' # BASE URL
-const['accounts']='/v3/accounts' # Accounts Endpoint
-const['accountId']=[ # Account Ids
-					'1',
-					'2',
-					]
-const['instruments']={
+		self.ENDPOINT = { 
+						'instruments':f'{self.BASE_URL}/v3/instruments/',
+						'candles': f'{self.BASE_URL}/candles?',
+						}
+		self.instruments = {
 					# CURRENCY PAIRS
-					'URL':'/v3/instruments/', # const['instruments']['URL']+const['instruments']['usdchf']
+					'URL':f'{self.BASE_URL}/v3/instruments/', 
 					'current':'USD_JPY',
-					'eurusd':'EUR_USD', # ['eurusd']
-					'usdjpy':'USD_JPY', # ['usdjpy']
-					'usdchf':'USD_CHF', # const['instruments']['usdchf']
+					'eurusd':'EUR_USD', 
+					'usdjpy':'USD_JPY', 
+					'usdchf':'USD_CHF', 
 					}
-# OANDA GRANULARITY VALUES BELOW
-# S5	5 second candlesticks, minute alignment
-# S10	10 second candlesticks, minute alignment
-# S15	15 second candlesticks, minute alignment
-# S30	30 second candlesticks, minute alignment
-# M1	1 minute candlesticks, minute alignment
-# M2	2 minute candlesticks, hour alignment
-# M4	4 minute candlesticks, hour alignment
-# M5	5 minute candlesticks, hour alignment
-# M10	10 minute candlesticks, hour alignment
-# M15	15 minute candlesticks, hour alignment
-# M30	30 minute candlesticks, hour alignment
-# H1	1 hour candlesticks, hour alignment
-# H2	2 hour candlesticks, day alignment
-# H3	3 hour candlesticks, day alignment
-# H4	4 hour candlesticks, day alignment
-# H6	6 hour candlesticks, day alignment
-# H8	8 hour candlesticks, day alignment
-# H12	12 hour candlesticks, day alignment
-# D	1 day candlesticks, day alignment
-# W	1 week candlesticks, aligned to start of week
-# M	1 month candlesticks, aligned to first day of the month
-const['candles']={ # example build) const['candles']['URL']+const['candles']['count']+const['candles']['granularity']['15m']
-					'URL': '/candles?',
-					'granularity':{
+		self.count = {
+						'URL':'count=',
+						'current':'3' # [default=500, maximum=5000] dont use with "FROM and TO"
+						}
+		self.candles = {'URL':'/candles?',
+						'granularity':{
 						'current':'&granularity=H1',
 						'5s':'&granularity=S5',
 						'5m':'&granularity=M5',
@@ -101,104 +71,39 @@ const['candles']={ # example build) const['candles']['URL']+const['candles']['co
 						'w':'&granularity=W',
 						'M':'&granularity=M',
 						 },
-					'count': 'count=1000', # [default=500, maximum=5000] dont use with FROM and TO
+					}
+		self.current_url = (
+			 f"{self.instruments['URL']}{self.instruments['current']}"
+			 f"{self.candles['URL']}"
+			 f"{self.count['URL']}{self.count['current']}"
+			 f"{self.candles['granularity']['current']}"
+			 				)
+# Expected Built URL: https://api-fxtrade.oanda.com/v3/instruments/EUR_USD/candles?count=6&price=M&granularity=S5
+						
+		self.query_url = f"{self.instruments['URL']}{self.instruments['current']}"
 
-					} 
-# The RFC 3339 Date Time format for FROM and TO parameters 
-const['Accept-Datetime-Format']='' # blank for now i dunno 
-#
-# DEFAULT CURRENCY: EURUSD
-const['default_instrument']=const['URL']+const['instruments']['URL']+const['instruments']['current']
-# DEFAULT GRANULARITY: 15m
-const['default_granularity']=const['candles']['granularity']['5s']
-# DEFAULT COUNT: 1000
-const['default_count']=const['candles']['URL']+const['candles']['count']
-#
-#      "https://api-fxtrade.oanda.com/v3/instruments/EUR_USD/candles?count=6&price=M&granularity=S5"
-#
-const['accounts_chunk']=const['URL']+const['accounts']
-chnk1 = const['instruments_chunk']=const['URL']+const['instruments']['URL']+const['instruments']['current']
-chnk2 = const['candles_chunk']=const['candles']['URL']+const['candles']['count']
-chnk3 = const['gran_chunk']=const['candles']['granularity']['current']
-#
-#   THE CHUNKEN ONE #
-const['chunken_URL']=chnk1+chnk2+chnk3      # 
-# build url uses the value set for 'chosen_url'  #
-def build_url(url=const['chunken_URL'], headers=const['headers']):
-	print(f"{baseURL}\n")
-	r = requests.get(url=url, headers=headers)
-	print(r.status_code)
-	print(r.content)
+	def query_accounts(self, url=None, header=None):
+		if header is None:
+			header = self.HEADER
+		if url is None:
+			url = f"{self.account['URL']}{self.account['current']}"
+		
+		r = requests.get(url=url, headers=header)
+		print(f"{r.status_code}, /n {r.content}")
 
-#	
-def check_const():
-	for keys in const:
-		print(f"{keys}: {const[keys]} \n") 
-#
-def query_url(url=const['chunken_URL']):
-	print(url)
+	def query_rate(self, url=None, header=None):
 
-def see_pairs(pair=const['instruments']):
-	for keys in pair:
-		print(f"{keys}: {pair[keys]} \n") 
+		if header is None:
+			header = self.HEADER
+		if url is None:
+			url = self.current_url
+		print(self.current_url)
+		r = requests.get(url=url, headers=header)
+		print(r.status_code)
+		print(r.content)
+#                                                   
 
-	const['instruments']['current']=pair
+if __name__ == '__main__':
+	app = OandaApp()
+	app.query_rate()
 
-def menu():
-	toggle = 0
-	if toggle == 0:
-		print('Welcome to Streamoney, a dip in the rich pool of FX markets.\n')
-		print('This is an interactive program.  Enter the option # to continue. ')
-		print(f"1. See {const['instruments']['current']} Live Rate")
-		print('2. Change Pair')
-		print('3. See Pairs')
-		print('4. Quit')
-		print(' Enter "cls" to clear the screen (Windows only)')
-		ans = input("Enter a # from the list to continue: ")
-	
-
-		match ans.lower():
-			case "1":
-				build_url()
-				menu()
-
-			case "2":
-				see_pairs()
-				menu()
-			case "3":
-				see_pairs()
-				menu()
-			case "q":
-				return
-			case "cls":
-				print(os.name)
-				os.system('cls')
-				menu()
-def choose_pair():
-	toggle = 0
-	if toggle == 0:
-		see_pairs()
-		ans = input("Enter a # from the list to continue: ")
-	
-
-		match ans.lower():
-			case "1":
-				build_url()
-				menu()
-
-			case "2":
-				see_pairs()
-				menu()
-			case "3":
-				see_pairs()
-				menu()
-			case "3":
-				return
-			case "cls":
-				print(os.name)
-				os.system('cls')
-				menu()
-	
-
-if __name__ == "__main__":
-	menu()
