@@ -99,11 +99,22 @@ class OandaApp():
 			url = self.current_url
 		print(self.current_url)
 		r = requests.get(url=url, headers=header)
-		print(r.status_code)
-		print(r.content)
+		#print(r.status_code)
+		#print(r.content)
+		return(r.content)
+
+	def deserialize(self, bin_data=None):
+		if json is None:
+			print("must provide binary data")
+		else:
+			json_string = bin_data.decode('utf-8')
+			json_data = json.loads(json_string)
+			print(json_data)
+
 #                                                   
 
 if __name__ == '__main__':
 	app = OandaApp()
-	app.query_rate()
+	raw_data = app.query_rate()
+	app.deserialize(raw_data)
 
