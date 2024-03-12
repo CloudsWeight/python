@@ -1,7 +1,7 @@
-# Python Project
+# Current Python Projects
 
-- Oanda API/Streaming functions to gather candle data
+- Creating an Oanda class with attributes and methods to access their API 
+![image](https://github.com/CloudsWeight/python/assets/22231598/59c51982-e663-43d7-9c08-6b9a94530767)
 
-![image](https://github.com/CloudsWeight/python/assets/22231598/b76f0987-9716-42be-9283-2485c77eec03)
 
 - random other tidbits
