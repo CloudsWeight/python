@@ -8,3 +8,7 @@
 - new_chat is a basic set of functions to begin listening to and decoding speech input
 - uses pocketsphinx to try to decode some text spoken into the microphone
 - requires: SpeechRecognition, wavio, setuptools
+
+# PDF to Text 
+- get_iaa takes a pdf file that has text in the document and conerts it to plain text file
+  
