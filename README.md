@@ -10,5 +10,5 @@
 - requires: SpeechRecognition, wavio, setuptools
 
 # PDF to Text 
-- get_iaa takes a pdf file that has text in the document and conerts it to plain text file
+- get_iaa takes a pdf file that has text in the document and converts it to plain text file
   
